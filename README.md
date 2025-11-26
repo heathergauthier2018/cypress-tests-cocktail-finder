@@ -2,7 +2,7 @@
 
 This project is a complete end-to-end (E2E) UI automation test suite for my **Cocktail Finder** web application, built using Cypress and designed to validate core user journeys in a fully automated and repeatable way.
 
-It serves as both a professional portfolio project and a realistic front-end regression suite for the live deployed application.
+It serves as both a **professional portfolio project** and a **realistic front-end regression suite** for the live deployed application.
 
 ---
 
@@ -24,37 +24,38 @@ cy.visit('/');
 
 ## ✨ What This Project Demonstrates
 
-This E2E suite showcases professional UI automation skills, including:
+This E2E suite showcases job-ready UI automation skills, including:
 
 ### 🧪 Test Design & Coverage
-- Verification of three core user journeys:
-  - **Random cocktail flow** – Validate random drink generation and content rendering.
-  - **Search flow** – Validate searching by name, displaying accurate results, and verifying UI content.
-  - **Favorites flow** – Validate adding/removing favorites using a localStorage-backed state.
-- Page-flow-driven test structuring
-- Clean and readable Cypress commands & assertions
-- Stable automation through **data-testid** selectors
-- Automated failure-resistant interactions (scrolling, force-clicking, element targeting)
+- Verification of **four** core user journeys:
+  - **Random cocktail flow** – Validates random drink generation & UI rendering.
+  - **Search flow** – Validates the search experience + result accuracy.
+  - **Favorites flow** – Validates persistent favorites via `localStorage`.
+  - **Layout & Navigation Smoke Test (NEW)** – Verifies basic UI structure on desktop + mobile.
+- Stable automation through **data-testid** selectors.
+- Clean, readable custom commands and test patterns.
+- Assertions against UI state AND application storage state.
 
 ### 🎯 Good Testing Practices
-- Selector isolation using `data-testid` for stability  
-- Clear arrange → act → assert structure  
-- User-driven testing approach  
-- Assertions based on visible UI elements and stored application state  
-- Idempotent tests ensuring the UI returns to a clean state every run  
+- Selector isolation using `data-testid`
+- Arrange → Act → Assert flow
+- Idempotent + environment-independent tests
+- Real browser verification of user paths
+- Complementary to the backend API tests in my Postman/Newman suite
 
 ### 🤖 CI-Ready Automation
-- GitHub Actions workflow prepared for headless Cypress execution  
-- Ideal for automated regression testing and portfolio demonstration  
+- Fully configured **GitHub Actions** workflow for headless Cypress execution  
+- Automatically runs on each push to the repository  
+- CI output includes screenshots and videos on failure  
 
 ---
 
 ## 🧱 Tech Stack
 
-- **Cypress 15** – End-to-end browser automation framework  
-- **JavaScript** – Test language  
-- **Node.js + npm** – Dependency management  
-- **GitHub Actions** – Continuous integration  
+- **Cypress 15**  
+- **JavaScript**  
+- **Node.js + npm**  
+- **GitHub Actions**  
 
 ---
 
@@ -64,132 +65,152 @@ This E2E suite showcases professional UI automation skills, including:
 cypress-tests-cocktail-finder/
 ├─ cypress/
 │  ├─ e2e/
-│  │  ├─ favorites.cy.js      # Favorites flow test
-│  │  ├─ random.cy.js         # Random cocktail test
-│  │  └─ search.cy.js         # Search flow test
+│  │  ├─ random.cy.js           # Random cocktail flow
+│  │  ├─ search.cy.js           # Search flow
+│  │  ├─ favorites.cy.js        # Favorites + localStorage flow
+│  │  └─ layout.smoke.cy.js     # NEW – UI smoke test (desktop + mobile)
+│  ├─ fixtures/                 # Optional sample data (future expansion)
 │  └─ support/
-│     ├─ commands.js
+│     ├─ commands.js            # Custom commands (visitApp, searchFor, addFavorite)
 │     └─ e2e.js
 ├─ .github/
 │  └─ workflows/
-│     └─ cypress.yml          # GitHub Actions workflow for headless runs
-├─ cypress.config.js          # Cypress configuration (baseUrl, spec pattern)
-├─ package.json               # Scripts & dependencies
+│     └─ cypress.yml            # GitHub Actions workflow
+├─ cypress.config.js
+├─ package.json
 └─ README.md
 ```
 
 ---
 
-## 🧪 Test Coverage
+# 🧪 Test Coverage
 
-This suite validates the core user experiences of the Cocktail Finder UI.
+This suite validates the full end-to-end user experience—rendering, navigation, searching, and persistent favorites.
 
 ---
 
-## 1️⃣ Random Cocktail Flow — `random.cy.js`
+## 1️⃣ Layout & Navigation Smoke Test — `layout.smoke.cy.js` (NEW)
 
-**Goal:** Verify a random cocktail loads and renders correctly.
+**Goal:** Quickly verify that the key UI structure loads in both desktop and mobile layouts.
 
-### High-Level Scenario
-1. Visit the home page  
+### What It Checks
+- Desktop viewport (1280×720)
+- Mobile viewport (375×667)
+- Main heading + buttons visible
+- Random cocktail card renders:
+  - Name
+  - Image
+  - Instructions
+- Navigation and interactive elements present  
+
+This test ensures the UI is fundamentally working before deeper flows run.
+
+---
+
+## 2️⃣ Random Cocktail Flow — `random.cy.js`
+
+**Goal:** Validate random cocktail loading and rendering.
+
+### Scenario
+1. Visit homepage  
 2. Click **“New Drink”**  
 3. Assert:
-   - The drink name is visible  
-   - The drink image is visible  
-   - The instructions panel exists  
+   - Name is visible  
+   - Image loads  
+   - Instructions are non-empty  
 
-### Key Assertions
-- Status and presence of UI elements  
-- Image loads successfully  
-- Instructions text is not empty  
+### Highlights
+- Verifies real API → UI flow  
+- Uses stable `data-testid` selectors  
 
 ---
 
-## 2️⃣ Search Flow — `search.cy.js`
+## 3️⃣ Search Flow — `search.cy.js`
 
-**Goal:** Verify searching by cocktail name loads correct results.
+**Goal:** Validate cocktail search behavior.
 
-### High-Level Scenario
-1. Enter a query (e.g., `"margarita"`)  
-2. Submit the search  
+### Scenario
+1. Enter a term like `"margarita"`  
+2. Submit search  
 3. Assert:
-   - Results appear  
-   - At least one cocktail name contains the search term  
-   - Each result card contains name + category + image  
+   - At least one result  
+   - Results contain correct name & details  
+   - UI cards render consistently  
 
-### Key Assertions
-- Uses `data-testid="cocktail-card"` for stable targeting  
-- Case-insensitive name matching  
-- Ensures results > 0  
+### Highlights
+- Case-insensitive validation  
+- Partial-match support  
+- Uses `data-testid="drink-card"`  
 
 ---
 
-## 3️⃣ Favorites Flow — `favorites.cy.js`
+## 4️⃣ Favorites Flow — `favorites.cy.js`
 
-**Goal:** Validate adding and removing favorites using the UI and localStorage.
+**Goal:** Validate favorites functionality and persistence.
 
-### High-Level Scenario
+### Scenario
 1. Perform a search  
-2. Choose the first cocktail  
-3. Click **Save**  
-4. Open Favorites section  
-5. Assert:
-   - The saved cocktail is listed  
-6. Remove the favorite  
-7. Assert:
-   - Favorites list updates to zero  
+2. Add a drink to favorites  
+3. Go to favorites  
+4. Validate it appears  
+5. Remove it  
+6. Validate it disappears  
+7. Validate `localStorage` reflects changes  
 
-### Stability Enhancements
-- Automatic scrolling to ensure the Remove button is clickable  
-- LocalStorage validation  
-- Element scoping using `.closest()` for precise targeting  
+### Highlights
+- Full UI → localStorage → UI loop validation  
+- Scroll + visibility handling  
+- Scoped element targeting  
 
 ---
 
-## ▶️ Running Tests Locally
+# ▶️ Running Tests Locally
 
 ### 1. Install dependencies
 ```
 npm install
 ```
 
-### 2. Open Cypress in interactive mode
+### 2. Open Cypress GUI
 ```
 npm run cy:open
 ```
 
-### 3. Run all tests in headless mode (CI-style)
+### 3. Run headless (CI-style)
 ```
 npm test
 ```
 
 ---
 
-## 🤖 GitHub Actions CI
+# 🤖 GitHub Actions CI
 
 Workflow file:  
 ```
 .github/workflows/cypress.yml
 ```
 
-### Pipeline Steps
+### CI Pipeline Steps
 1. Install Node  
-2. Install dependencies  
-3. Run Cypress tests in headless mode  
-4. Provide test results in CI UI  
+2. Install npm dependencies  
+3. Run headless Cypress tests  
+4. Upload failure artifacts (screenshots & videos)  
 
-This enables automated regression validation on every commit or pull request.
+### View CI Runs  
+https://github.com/heathergauthier2018/cypress-tests-cocktail-finder/actions
+
+CI ensures full UI regression checks on every commit.
 
 ---
 
-## 🔗 Related Projects
+# 🔗 Related Projects
 
 ### **Cocktail Finder Front-End Application**  
-The UI under test.  
+The UI under test:  
 https://heathergauthier2018.github.io/cocktail-finder2.0/
 
-### **Companion API Test Suite (Postman + Newman)**
-Automated API regression tests for the same application.
+### **Companion API Test Suite (Postman + Newman)**  
+Backend API contract testing for the same app:  
 https://github.com/heathergauthier2018/api-testing-postman-newman
 
 ---
@@ -197,5 +218,5 @@ https://github.com/heathergauthier2018/api-testing-postman-newman
 ## 👩‍💻 Author
 
 **Heather Gauthier**  
-QA Automation • UI Testing • Software Engineering Student  
+Software Engineering Student • QA Automation • UI Testing  
 GitHub: https://github.com/heathergauthier2018
